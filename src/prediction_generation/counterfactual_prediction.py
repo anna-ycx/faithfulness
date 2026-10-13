@@ -1,5 +1,9 @@
 from typing import Optional, List, Tuple
-from vllm import LLM, SamplingParams
+# vLLM is only needed for local GPU models; the API path works without it
+try:
+    from vllm import LLM, SamplingParams
+except ImportError:
+    LLM = SamplingParams = None
 from src.utils import (
     LLMConfig,
     parse_response,

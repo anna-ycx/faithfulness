@@ -375,6 +375,7 @@ VLLM_CONFIGS = {
         max_tokens=max_tokens,
         seed=666,
         #enable_reasoning="medium",
+        provider_order=["deepinfra"],
     ),
     "openrouter/google/gemma-3-27b-it": LLMConfig( # QWEN 3 32B PREDICTOR
         model_name="google/gemma-3-27b-it",
@@ -391,6 +392,7 @@ VLLM_CONFIGS = {
         max_tokens=max_tokens,
         seed=666,
         enable_reasoning='medium',
+        provider_order=["deepinfra"],
     ),
 
     ############################################################
@@ -454,6 +456,14 @@ VLLM_CONFIGS = {
         max_tokens=10000,
     ),
 
+
+    # Same model as above, but sent straight to OpenAI (billed to OpenAI credit, needs OPENAI_API_KEY)
+    "openai-direct/openai/gpt-5-mini": LLMConfig(
+        model_name="openai/gpt-5-mini",
+        api_model=True,
+        max_tokens=10000,
+        provider="openai",
+    ),
 
     "openrouter/openai/gpt-5-nano": LLMConfig(
         model_name="openai/gpt-5-nano",

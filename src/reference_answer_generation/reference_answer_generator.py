@@ -1,7 +1,14 @@
 import time
 from typing import Any, Dict, Optional, List, Tuple
-import torch
-from vllm import LLM, SamplingParams
+try:
+    import torch
+except ImportError:
+    torch = None
+# vLLM is only needed for local GPU models; the API path works without it
+try:
+    from vllm import LLM, SamplingParams
+except ImportError:
+    LLM = SamplingParams = None
 from src.utils import LLMConfig
 from src.schema import CounterfactualDatabase, ModelInfo, Response
 from src.utils import parse_response, get_messages, parse_message_to_harmony, extract_messages_using_harmony, split_on_cot_seperator
@@ -94,6 +101,9 @@ class ReferenceAnswerGenerator:
         
     def get_device_info(self):
         """Get GPU device information"""
+        if torch is None:
+            print("torch not installed. Using CPU.")
+            return "cpu"
         if torch.cuda.is_available():
             device = torch.device("cuda")
             gpu_name = torch.cuda.get_device_name(0)

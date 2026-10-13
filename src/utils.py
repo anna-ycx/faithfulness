@@ -3,8 +3,15 @@ import re
 import gc
 import subprocess
 import time
-import torch
-import ray
+# torch and ray are only needed for local GPU models; the API path works without them
+try:
+    import torch
+except ImportError:
+    torch = None
+try:
+    import ray
+except ImportError:
+    ray = None
 import os
 import asyncio
 from pathlib import Path
@@ -40,6 +47,11 @@ if OpenAI and api_key:
 else:
     client = None
 
+# Optional: call OpenAI directly (configs with provider="openai") to use OpenAI credit
+openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_url = "https://api.openai.com/v1/chat/completions"
+openai_headers = {"Authorization": f"Bearer {openai_api_key}", "Content-Type": "application/json"}
+
 MAX_PARALLEL_REQUESTS = 100
 semaphore = asyncio.Semaphore(MAX_PARALLEL_REQUESTS)
 
@@ -68,6 +80,8 @@ class LLMConfig:
     additional_params: Optional[dict] = None                # sampling param
     enable_reasoning: Optional[Union[bool, str]] = None     # chat_template_kwargs param - For reasoning models like Phi-4-reasoning. True/False for Qwen. "low"/"medium"/"high" for gpt-oss
     cot_flags: Optional[list] = None                        # list of cot flags - cot separator must be the final one!
+    provider: str = "openrouter"                            # API route: "openrouter" or "openai" (direct, needs OPENAI_API_KEY)
+    provider_order: Optional[list] = None                   # OpenRouter only: use just these providers, no fallbacks (e.g. ["deepinfra"])
 
 
 def normalize_answer(answer: str, valid_answers: set) -> Optional[str]:
@@ -225,7 +239,7 @@ def parse_response(response: str, valid_answers: set) -> Optional[Dict[str, Any]
 
 def _cleanup_before_model(self):
     """Cleanup before loading a new model"""
-    if ray.is_initialized():
+    if ray is not None and ray.is_initialized():
         print("🔧 Shutting down existing Ray instance...")
         try:
             ray.shutdown()
@@ -258,7 +272,7 @@ def cleanup_after_model(obj):
     gc.collect()
     
     # Clear CUDA cache
-    if torch.cuda.is_available():
+    if torch is not None and torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
     
@@ -272,7 +286,7 @@ def cleanup_after_model(obj):
         print(f"⚠️ Tensor parallel cleanup warning: {e}")
     
     # Final Ray shutdown
-    if ray.is_initialized():
+    if ray is not None and ray.is_initialized():
         print("🔧 Shutting down Ray...")
         try:
             ray.shutdown()
@@ -430,6 +444,25 @@ async def get_message(
                 "enable": bool(reasoning)
             }
  
+    if config.provider_order:
+        payload["provider"] = {"order": config.provider_order, "allow_fallbacks": False}
+
+    # Direct OpenAI API: same response format, slightly different request fields
+    request_url, request_headers = url, headers
+    if config.provider == "openai":
+        if not openai_api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment.")
+        request_url, request_headers = openai_url, openai_headers
+        payload = {
+            'model': config.model_name.removeprefix('openai/'),
+            'messages': messages,
+            'max_completion_tokens': config.max_tokens,
+        }
+        if config.temperature is not None:  # GPT-5 family only accepts the default temperature
+            payload['temperature'] = config.temperature
+        if reasoning in ["minimal", "low", "medium", "high"]:
+            payload['reasoning_effort'] = reasoning
+
     attempt = 0
     backoff_attempt = 0
     async with semaphore:
@@ -437,7 +470,7 @@ async def get_message(
             while attempt < max_retries:
 
                 try:
-                    response = await client.post(url, headers=headers, json=payload)
+                    response = await client.post(request_url, headers=request_headers, json=payload)
                     response.raise_for_status()
 
                     try:

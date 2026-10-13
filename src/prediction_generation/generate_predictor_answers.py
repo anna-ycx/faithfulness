@@ -44,7 +44,11 @@ import asyncio
 import argparse
 from pathlib import Path
 from typing import List
-from vllm import LLM
+# vLLM is only needed for local GPU models; the API path works without it
+try:
+    from vllm import LLM
+except ImportError:
+    LLM = None
 
 from src.prediction_generation.counterfactual_prediction import PredictorAnswerGenerator
 from src.utils import LLMConfig, filter_records_by_reference_answer, cleanup_after_model, get_model_name
