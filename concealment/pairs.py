@@ -19,6 +19,7 @@ Usage:
     python -m concealment.pairs --dataset heart_disease
 """
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
@@ -26,6 +27,7 @@ from src.schema import CounterfactualDatabase
 
 DATA = "data/natural_counterfactuals/{}_counterfactual_dataset_balanced.parquet"
 SUPPORTED = ["attrition", "income", "heart_disease", "pima_diabetes", "breast_cancer_recurrence"]
+OUT_DIR = Path("concealment/results/pair_counts")
 
 
 def load_pairs_with_features(dataset: str):
@@ -84,11 +86,18 @@ def summarise(dataset: str, min_pairs: int = 150) -> pd.DataFrame:
         })
     table = pd.DataFrame(rows).sort_values("pairs_changed", ascending=False)
 
-    print(f"\n=== {dataset}: {len(pairs)} distinct pairs ===")
-    print(f"Descriptions match their table rows: all")
-    print(f"Changed features match stored Hamming distance: {(n_changed == hamming).sum()}/{len(pairs)}")
-    print(f"Pairs with no feature change: {(n_changed == 0).sum()}")
-    print(table.to_string(index=False))
+    summary = "\n".join([
+        f"=== {dataset}: {len(pairs)} distinct pairs ===",
+        "Descriptions match their table rows: all",
+        f"Changed features match stored Hamming distance: {(n_changed == hamming).sum()}/{len(pairs)}",
+        f"Pairs with no feature change: {(n_changed == 0).sum()}",
+        table.to_string(index=False),
+    ])
+    print("\n" + summary)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    table.to_csv(OUT_DIR / f"{dataset}.csv", index=False)
+    (OUT_DIR / f"{dataset}_summary.txt").write_text(summary + "\n")
+    print(f"Saved to {OUT_DIR}/{dataset}.csv and {dataset}_summary.txt")
     return table
 
 

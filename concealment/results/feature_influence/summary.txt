@@ -1,0 +1,17 @@
+Calls: 506 | errors: 0 | unreadable answers: 0 | cut off at token limit: 0
+Providers: {'DeepInfra': 506}
+Actual cost: $0.1421
+
+Noise rate (same employee, two asks disagree): 7% over 30 employees
+Pass threshold: flip rate >= 20% (max of 20% and 2x noise)
+
+           group  pairs flip_rate pass YES_rate overtime_higher_risk overtime_lower_risk
+   overtime_rule     30      100%  yes      50%                    0                  30
+overtime_no_rule     30       13%   no      90%                    3                   1
+        distance     30       17%   no      92%                                         
+          travel     28        0%   no     100%                                         
+          gender     30       17%   no      78%                                         
+             age     30       17%   no      85%                                         
+         marital     30       17%   no      88%                                         
+
+Rule group: explanation mentions 'overtime' 100%, 'policy' 100%

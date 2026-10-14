@@ -1,0 +1,10 @@
+feature,pairs_changed,only_change,true_label_flips,pass_>=150
+tumor_size,513,53,48%,yes
+breast_quad,251,20,48%,yes
+deg_malig,219,13,50%,yes
+age,213,15,52%,yes
+breast,132,11,52%,no
+menopause,69,3,51%,no
+irradiat,58,3,52%,no
+inv_nodes,49,3,51%,no
+node_caps,24,1,50%,no

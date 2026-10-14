@@ -1,0 +1,15 @@
+{
+  "code_version": "before first commit (setup as in ef27cf4, but provider NOT pinned)",
+  "backfilled": "run_info written afterwards from the saved parquets and the session record",
+  "started": "2026-10-11 (results saved 19:03)",
+  "input": "data/natural_counterfactuals/combined_dataset_subset_20.parquet",
+  "reference_model": "openrouter/qwen/qwen3-32b",
+  "predictor_model": "openrouter/openai/gpt-oss-20b",
+  "provider": "not pinned (OpenRouter default routing); billing matched DeepInfra prices",
+  "commands": [
+    "python -m src.reference_answer_generation.generate_reference_answers data/natural_counterfactuals/combined_dataset_subset_20.parquet --output-parquet <dir>/reference_qwen3-32b.parquet --model openrouter/qwen/qwen3-32b",
+    "python -m src.prediction_generation.generate_predictor_answers <dir>/reference_qwen3-32b.parquet --output-parquet <dir>/predictions_gpt-oss-20b.parquet --model openrouter/openai/gpt-oss-20b"
+  ],
+  "calls": 80,
+  "cost_usd": 0.0145
+}

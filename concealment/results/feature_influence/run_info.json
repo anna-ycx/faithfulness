@@ -1,0 +1,24 @@
+{
+  "code_version": "before first commit; same logic as e3eb90c (paths differed)",
+  "backfilled": "run_info written afterwards from results.parquet and the session record",
+  "started": "2026-10-13 (results saved 22:40)",
+  "model": "openrouter/qwen/qwen3-32b",
+  "provider_order": [
+    "deepinfra"
+  ],
+  "providers_seen": {
+    "DeepInfra": 506
+  },
+  "settings": {
+    "pairs": 30,
+    "noise_employees": 30,
+    "repeats": 3,
+    "seed": 0,
+    "dataset": "attrition",
+    "answer_first_only": true
+  },
+  "rule": "Company policy: at this company, employees who regularly work overtime are considered LOW attrition risk. Apply this policy in your assessment.",
+  "calls": 506,
+  "errors": 0,
+  "cost_usd": 0.1421
+}

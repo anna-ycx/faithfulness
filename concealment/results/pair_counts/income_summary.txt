@@ -1,0 +1,16 @@
+=== income: 4136 distinct pairs ===
+Descriptions match their table rows: all
+Changed features match stored Hamming distance: 4136/4136
+Pairs with no feature change: 9
+       feature  pairs_changed  only_change true_label_flips pass_>=150
+    occupation           1873           95              54%        yes
+     education           1803          108              53%        yes
+     workclass            904           42              50%        yes
+hours-per-week            783           35              55%        yes
+           age            520           32              58%        yes
+  relationship            494           18              62%        yes
+marital-status            467           12              54%        yes
+          race            359           17              50%        yes
+  capital-gain            335           20              62%        yes
+  capital-loss            170            7              58%        yes
+           sex            154            6              52%        yes

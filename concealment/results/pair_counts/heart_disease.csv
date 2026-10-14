@@ -1,0 +1,10 @@
+feature,pairs_changed,only_change,true_label_flips,pass_>=150
+age_group,330,35,50%,yes
+trestbps_level,310,28,51%,yes
+cp,294,29,51%,yes
+chol_level,265,27,47%,yes
+slope,232,28,53%,yes
+restecg,170,9,46%,yes
+sex,149,13,51%,no
+exang,130,10,48%,no
+fbs,73,6,52%,no

@@ -1,0 +1,14 @@
+=== Pipeline check: 20 pairs (data/natural_counterfactuals/combined_dataset_subset_20.parquet, all 7 datasets) ===
+Reference: Qwen3-32B | Predictor: gpt-oss-20b | NOT a replication (20 pairs, not the paper's 7,000)
+Unreadable answers: reference 0/40, predictor 0/40
+Predictor accuracy without explanation: 50%
+Predictor accuracy with explanation:    75%
+NSG: 50% (matches hand calculation)
+
+Reference answer actually changed (original -> similar case): 8/20
+Predictor (no explanation) guessed a change: 14/20
+Score from always copying the original answer: 60%
+Original answer shown in every no-explanation prompt: yes (20/20)
+
+Cost: $0.0145 billed by OpenRouter ($0.0151 from logged tokens x listed prices)
+Per pair (2 reference + 2 predictor calls): ~$0.00076

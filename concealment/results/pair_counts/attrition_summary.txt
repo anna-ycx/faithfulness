@@ -1,0 +1,16 @@
+=== attrition: 2936 distinct pairs ===
+Descriptions match their table rows: all
+Changed features match stored Hamming distance: 2936/2936
+Pairs with no feature change: 20
+         feature  pairs_changed  only_change true_label_flips pass_>=150
+  YearsAtCompany            781           56              50%        yes
+       Education            719           48              50%        yes
+   MaritalStatus            705           61              50%        yes
+             Age            687           50              50%        yes
+DistanceFromHome            508           41              49%        yes
+        OverTime            416           30              60%        yes
+  BusinessTravel            378           28              51%        yes
+          Gender            362           31              47%        yes
+      Department            351           27              51%        yes
+   MonthlyIncome            304           24              47%        yes
+        JobLevel            212           13              45%        yes

@@ -1,0 +1,12 @@
+=== pima_diabetes: 3169 distinct pairs ===
+Descriptions match their table rows: all
+Changed features match stored Hamming distance: 3169/3169
+Pairs with no feature change: 25
+        feature  pairs_changed  only_change true_label_flips pass_>=150
+pregnancies_cat           1047           94              54%        yes
+      age_group           1008           85              52%        yes
+  pedigree_risk            941           75              52%        yes
+  glucose_level            876           70              57%        yes
+        bmi_cat            776           76              58%        yes
+  insulin_level            581           55              54%        yes
+       bp_level            555           49              52%        yes
