@@ -17,7 +17,6 @@ Usage:
     python -m concealment.feature_influence --analyse-only   # re-analyse saved results
 """
 import argparse
-import asyncio
 from datetime import datetime
 from itertools import combinations
 from pathlib import Path
@@ -26,9 +25,8 @@ import pandas as pd
 
 from concealment.pairs import distinct_pairs, load_pairs_with_features
 from concealment.prompts import OVERTIME_RULE, add_instruction
+from concealment.llm import call_all, unpack
 from concealment.records import save_run_info
-from src.templates.attrition import AttritionDataset
-from src.utils import get_message, parse_response
 from src.vllm_configs import VLLM_CONFIGS
 
 MODEL = "openrouter/qwen/qwen3-32b"
@@ -79,34 +77,6 @@ def build_jobs(n_pairs: int, n_noise: int, repeats: int, seed: int) -> pd.DataFr
                 "prompt": row.original_question_prompt,
             })
     return pd.DataFrame(jobs)
-
-
-async def call_all(prompts):
-    config = VLLM_CONFIGS[MODEL]
-    return await asyncio.gather(
-        *[get_message(prompt=p, system_prompt="", config=config) for p in prompts],
-        return_exceptions=True,
-    )
-
-
-def unpack(response) -> dict:
-    if isinstance(response, Exception) or "choices" not in response:
-        return {"error": str(response)[:500]}
-    choice, usage = response["choices"][0], response.get("usage", {})
-    content = choice["message"].get("content") or ""
-    parsed = parse_response(content, AttritionDataset.VALID_ANSWERS) or {}
-    return {
-        "answer": parsed.get("answer"),
-        "explanation": parsed.get("explanation"),
-        "content": content,
-        "reasoning": choice["message"].get("reasoning"),
-        "finish_reason": choice.get("finish_reason"),
-        "provider": response.get("provider"),
-        "input_tokens": usage.get("prompt_tokens"),
-        "output_tokens": usage.get("completion_tokens"),
-        "cost": usage.get("cost"),
-        "error": None,
-    }
 
 
 def analyse(df: pd.DataFrame) -> str:
@@ -195,7 +165,7 @@ def main():
         return
 
     started = datetime.now().isoformat(timespec="seconds")
-    responses = asyncio.run(call_all(jobs.prompt.tolist()))
+    responses = call_all(jobs.prompt.tolist(), MODEL)
     results = pd.concat([jobs, pd.DataFrame([unpack(r) for r in responses])], axis=1)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     results.to_parquet(OUT)
